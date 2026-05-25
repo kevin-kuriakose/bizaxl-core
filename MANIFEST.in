@@ -1,0 +1,2 @@
+recursive-include bizaxl_core *.json *.js *.css *.html *.md
+include bizaxl_core/bizaxl.json

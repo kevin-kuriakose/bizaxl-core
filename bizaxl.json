@@ -1,0 +1,10 @@
+{
+    "app_name": "bizaxl_core",
+    "display_name": "BizAxl Core",
+    "description": "Core BizAxl infrastructure — always required",
+    "show_modules": [
+        "Accounts", "Buying", "Selling", "Contacts"
+    ],
+    "hide_modules": [],
+    "optional_modules": []
+}

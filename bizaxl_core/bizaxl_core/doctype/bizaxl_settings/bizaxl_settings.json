@@ -1,0 +1,104 @@
+{
+    "name": "BizAxl Settings",
+    "doctype": "DocType",
+    "module": "BizAxl Core",
+    "issingle": 1,
+    "istable": 0,
+    "editable_grid": 0,
+    "track_changes": 1,
+    "description": "Configure which ERPNext modules are visible on this site",
+    "fields": [
+        {
+            "fieldname": "section_profile",
+            "fieldtype": "Section Break",
+            "label": "App Profile"
+        },
+        {
+            "fieldname": "app_profile",
+            "fieldtype": "Select",
+            "label": "App Profile",
+            "options": "\nRetailEdge\nEnergyEdge\nCivicEdge\nMuseumEdge\nProEdge\nLifeEdge\nCustom",
+            "description": "Select a preset profile or choose Custom to configure manually"
+        },
+        {
+            "fieldname": "section_modules",
+            "fieldtype": "Section Break",
+            "label": "Optional Modules",
+            "description": "Check modules to enable. Core modules (Accounting, Buying, Selling) are always enabled."
+        },
+        {
+            "fieldname": "enable_stock",
+            "fieldtype": "Check",
+            "label": "Stock & Inventory"
+        },
+        {
+            "fieldname": "enable_manufacturing",
+            "fieldtype": "Check",
+            "label": "Manufacturing"
+        },
+        {
+            "fieldname": "enable_hr",
+            "fieldtype": "Check",
+            "label": "HR & Payroll"
+        },
+        {
+            "fieldname": "enable_projects",
+            "fieldtype": "Check",
+            "label": "Projects & Timesheets"
+        },
+        {
+            "fieldname": "enable_crm",
+            "fieldtype": "Check",
+            "label": "CRM & Leads"
+        },
+        {
+            "fieldname": "enable_assets",
+            "fieldtype": "Check",
+            "label": "Asset Management"
+        },
+        {
+            "fieldname": "enable_quality",
+            "fieldtype": "Check",
+            "label": "Quality Management"
+        },
+        {
+            "fieldname": "enable_support",
+            "fieldtype": "Check",
+            "label": "Support & Helpdesk"
+        },
+        {
+            "fieldname": "enable_website",
+            "fieldtype": "Check",
+            "label": "Website & CMS"
+        },
+        {
+            "fieldname": "enable_healthcare",
+            "fieldtype": "Check",
+            "label": "Healthcare"
+        },
+        {
+            "fieldname": "enable_education",
+            "fieldtype": "Check",
+            "label": "Education"
+        },
+        {
+            "fieldname": "enable_non_profit",
+            "fieldtype": "Check",
+            "label": "Non-Profit"
+        },
+        {
+            "fieldname": "enable_agriculture",
+            "fieldtype": "Check",
+            "label": "Agriculture"
+        }
+    ],
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 0
+        }
+    ]
+}

@@ -1,0 +1,1 @@
+bizaxl_core.patches.patch_erpnext_boot
