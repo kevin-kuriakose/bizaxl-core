@@ -16,6 +16,7 @@ BIZAXL_CORE_MODULES = {
 BIZAXL_OPTIONAL_MODULES = {
     "BizAxl Stock":    {"label": "Stock & Inventory",     "app": "bizaxl_stock"},
     "BizAxl HR":       {"label": "HR & People",           "app": "bizaxl_hr"},
+    "BizAxl Payroll":  {"label": "Payroll",               "app": "bizaxl_payroll"},
     "BizAxl Projects": {"label": "Projects & Timesheets", "app": "bizaxl_projects"},
     "BizAxl CRM":      {"label": "CRM & Leads",           "app": "bizaxl_crm"},
     "BizAxl Assets":   {"label": "Asset Management",      "app": "bizaxl_assets"},

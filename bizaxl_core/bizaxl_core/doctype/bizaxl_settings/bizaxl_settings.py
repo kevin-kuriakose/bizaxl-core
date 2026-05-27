@@ -10,6 +10,7 @@ from bizaxl_core.api.module_manager import (
 MODULE_FIELD_MAP = {
     "enable_stock":    "BizAxl Stock",
     "enable_hr":       "BizAxl HR",
+    "enable_payroll":  "BizAxl Payroll",
     "enable_projects": "BizAxl Projects",
     "enable_crm":      "BizAxl CRM",
     "enable_assets":   "BizAxl Assets",
