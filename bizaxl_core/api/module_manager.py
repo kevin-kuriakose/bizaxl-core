@@ -2,73 +2,28 @@ import frappe
 import json
 import os
 
-
-CORE_MODULES = {
+SYSTEM_MODULES = {
     "Core", "Custom", "Desk", "Email", "Integrations",
     "Printing", "Setup", "Workflow", "BizAxl Core",
+    "Automation", "Social", "Contacts", "Geo", "Website",
 }
 
-ERPNEXT_MODULES = {
-    "Accounts":        {"label": "Accounting & Finance",   "icon": "💰", "core": True},
-    "Buying":          {"label": "Buying & Procurement",   "icon": "🛒", "core": True},
-    "Selling":         {"label": "Sales",                  "icon": "💼", "core": True},
-    "Contacts":        {"label": "Contacts",               "icon": "👥", "core": True},
-    "HR":              {"label": "HR & Payroll",           "icon": "👤", "core": False},
-    "Payroll":         {"label": "Payroll",                "icon": "💵", "core": False},
-    "Stock":           {"label": "Stock & Inventory",      "icon": "📦", "core": False},
-    "Manufacturing":   {"label": "Manufacturing",          "icon": "🏭", "core": False},
-    "Projects":        {"label": "Projects & Timesheets",  "icon": "📋", "core": False},
-    "CRM":             {"label": "CRM & Leads",            "icon": "🤝", "core": False},
-    "Assets":          {"label": "Asset Management",       "icon": "🏗️",  "core": False},
-    "Quality":         {"label": "Quality Management",     "icon": "✅", "core": False},
-    "Support":         {"label": "Support & Helpdesk",     "icon": "🎧", "core": False},
-    "Website":         {"label": "Website & CMS",          "icon": "🌐", "core": False},
-    "E-commerce":      {"label": "E-Commerce",             "icon": "🛍️",  "core": False},
-    "Agriculture":     {"label": "Agriculture",            "icon": "🌾", "core": False},
-    "Healthcare":      {"label": "Healthcare",             "icon": "🏥", "core": False},
-    "Education":       {"label": "Education",              "icon": "🎓", "core": False},
-    "Hospitality":     {"label": "Hospitality",            "icon": "🏨", "core": False},
-    "Non Profit":      {"label": "Non-Profit",             "icon": "❤️",  "core": False},
-    "Loan Management": {"label": "Loan Management",        "icon": "🏦", "core": False},
-    "Utilities":       {"label": "Utilities",              "icon": "⚡", "core": False},
-    "Maintenance":     {"label": "Maintenance",            "icon": "🔧", "core": False},
+BIZAXL_CORE_MODULES = {
+    "BizAxl Accounts", "BizAxl Buying", "BizAxl Selling",
+    "BizAxl Contacts", "BizAxl Setup",
 }
 
-MODULE_TO_DOMAIN = {
-    "Manufacturing": "manufacturing",
-    "Stock":         "stock",
-    "HR":            "hr",
-    "Payroll":       "payroll",
-    "Projects":      "projects",
-    "CRM":           "crm",
-    "Assets":        "asset",
-    "Quality":       "quality",
-    "Support":       "support",
-    "Website":       "website",
-    "E-commerce":    "e_commerce",
-    "Agriculture":   "agriculture",
-    "Healthcare":    "healthcare",
-    "Education":     "education",
-    "Hospitality":   "hospitality",
-    "Non Profit":    "non_profit",
-    "Loan Management": "loan_management",
-    "Utilities":     "utilities",
-    "Maintenance":   "maintenance",
+BIZAXL_OPTIONAL_MODULES = {
+    "BizAxl Stock":    {"label": "Stock & Inventory",     "app": "bizaxl_stock"},
+    "BizAxl HR":       {"label": "HR & People",           "app": "bizaxl_hr"},
+    "BizAxl Projects": {"label": "Projects & Timesheets", "app": "bizaxl_projects"},
+    "BizAxl CRM":      {"label": "CRM & Leads",           "app": "bizaxl_crm"},
+    "BizAxl Assets":   {"label": "Asset Management",      "app": "bizaxl_assets"},
 }
 
-HOME_LINKS_TO_HIDE = {
-    "Lead", "Opportunity", "Warehouse", "Item Price",
-    "Stock Reconciliation", "Work Order", "BOM",
-    "Production Plan", "Project", "Task", "Issue",
-    "Asset", "Customer Complaint", "Incoterm",
-    "Brand", "Territory", "Customer Group",
-    "Unit of Measure",
-}
-
-HOME_CARD_BREAKS_TO_HIDE = {
-    "Stock", "CRM", "Manufacturing", "Projects",
-    "Support", "Assets", "Quality", "HR", "Website",
-    "Maintenance",
+VERTICAL_APPS = {
+    "retail_erp", "energy_erp", "civic_erp",
+    "museum_erp", "proserv_erp", "organ_donation_erp",
 }
 
 
@@ -77,11 +32,10 @@ def get_installed_app_profiles():
     for app in frappe.get_installed_apps():
         try:
             app_path = frappe.get_app_path(app)
-            bizaxl_json = os.path.normpath(
-                os.path.join(app_path, "..", "bizaxl.json")
-            )
+            bizaxl_json = os.path.normpath(os.path.join(app_path, "..", "bizaxl.json"))
             if os.path.exists(bizaxl_json):
-                profile = json.load(open(bizaxl_json))
+                with open(bizaxl_json) as f:
+                    profile = json.load(f)
                 profile["_app"] = app
                 profiles.append(profile)
         except Exception:
@@ -91,81 +45,45 @@ def get_installed_app_profiles():
 
 @frappe.whitelist()
 def get_module_config():
-    profiles = get_installed_app_profiles()
-    optional_modules = {}
-    hidden_by_default = set()
-
-    for profile in profiles:
-        for opt in profile.get("optional_modules", []):
-            mod = opt["module"] if isinstance(opt, dict) else opt
-            label_info = opt if isinstance(opt, dict) else {"module": opt}
-            if mod not in optional_modules:
-                optional_modules[mod] = {
-                    "module": mod,
-                    "label": label_info.get("label", ERPNEXT_MODULES.get(mod, {}).get("label", mod)),
-                    "description": label_info.get("description", ""),
-                    "icon": ERPNEXT_MODULES.get(mod, {}).get("icon", "📦"),
-                    "checked": False,
-                }
-        for m in profile.get("hide_modules", []):
-            hidden_by_default.add(m)
-
-    return {
-        "profiles": profiles,
-        "optional_modules": list(optional_modules.values()),
-        "hidden_by_default": list(hidden_by_default),
-        "core_modules": [
-            {"module": k, "label": v["label"], "icon": v["icon"]}
-            for k, v in ERPNEXT_MODULES.items() if v["core"]
-        ],
-    }
+    optional = []
+    for module, info in BIZAXL_OPTIONAL_MODULES.items():
+        installed = info["app"] in frappe.get_installed_apps()
+        optional.append({
+            "module": module,
+            "label": info["label"],
+            "app": info["app"],
+            "installed": installed,
+            "checked": installed,
+        })
+    core = [{"module": m, "label": m.replace("BizAxl ", "")} for m in BIZAXL_CORE_MODULES]
+    return {"core_modules": core, "optional_modules": optional}
 
 
 @frappe.whitelist()
-def apply_module_selection(selected_modules, app_name=None):
+def apply_module_selection(selected_modules):
     if isinstance(selected_modules, str):
         selected_modules = json.loads(selected_modules)
 
     selected_set = set(selected_modules)
-    for module, info in ERPNEXT_MODULES.items():
-        if info["core"]:
-            selected_set.add(module)
-    selected_set.update(CORE_MODULES)
+    selected_set.update(BIZAXL_CORE_MODULES)
 
-    all_modules = frappe.get_all("Module Def", fields=["name", "app_name"])
+    hidden_count = 0
+    shown_count = 0
 
-    for module in all_modules:
-        mod_name = module.name
-        if mod_name in CORE_MODULES:
+    for module_name, info in BIZAXL_OPTIONAL_MODULES.items():
+        if info["app"] not in frappe.get_installed_apps():
             continue
-        app = module.get("app_name", "")
-        if app and app not in ("erpnext", "frappe", "hrms"):
-            continue
-
-        should_hide = mod_name not in selected_set
-        _set_workspace_visibility(mod_name, not should_hide)
-
-        if should_hide:
-            _block_module_from_search(mod_name)
-            _disable_domain(mod_name)
+        should_show = module_name in selected_set
+        _set_workspace_visibility(module_name, should_show)
+        _set_module_search_visibility(module_name, should_show)
+        if should_show:
+            shown_count += 1
         else:
-            _restore_module_to_search(mod_name)
-            _enable_domain(mod_name)
-
-    # Fix home workspace
-    _fix_home_workspace(selected_set)
+            hidden_count += 1
 
     frappe.db.commit()
     frappe.clear_cache()
-
-    hidden = len([m for m in all_modules
-                  if m.name not in selected_set and m.name not in CORE_MODULES])
-    return {
-        "status": "success",
-        "hidden": hidden,
-        "shown": len(selected_set),
-        "message": f"Applied. {len(selected_set)} modules visible, {hidden} hidden.",
-    }
+    return {"status": "success", "shown": shown_count, "hidden": hidden_count}
 
 
 @frappe.whitelist()
@@ -173,160 +91,48 @@ def apply_profile(app_name):
     profiles = get_installed_app_profiles()
     profile = next((p for p in profiles if p.get("app_name") == app_name), None)
     if not profile:
-        frappe.throw(f"No bizaxl.json found for app: {app_name}")
-
+        frappe.throw("No bizaxl.json found for app: " + app_name)
     show = set(profile.get("show_modules", []))
-    for m, info in ERPNEXT_MODULES.items():
-        if info["core"]:
-            show.add(m)
-    return apply_module_selection(list(show), app_name)
-
-
-@frappe.whitelist()
-def restore_module(module_name):
-    _restore_module_to_search(module_name)
-    _set_workspace_visibility(module_name, True)
-    _enable_domain(module_name)
-    frappe.db.commit()
-    frappe.clear_cache()
-    return {"status": "success", "message": str(module_name) + " restored successfully."}
+    return apply_module_selection(list(show))
 
 
 @frappe.whitelist()
 def restore_all_modules():
-    for mod in ERPNEXT_MODULES:
-        _restore_module_to_search(mod)
-        _set_workspace_visibility(mod, True)
-        _enable_domain(mod)
-    frappe.db.commit()
-    frappe.clear_cache()
-    return {"status": "success", "message": "All modules restored."}
-
-
-def _fix_home_workspace(selected_set):
-    """Hide irrelevant links from the Home workspace."""
-    try:
-        if not frappe.db.exists("Workspace", "Home"):
-            return
-        home = frappe.get_doc("Workspace", "Home")
-        changed = False
-        for link in home.links:
-            should_hide = (
-                link.link_to in HOME_LINKS_TO_HIDE or
-                (link.type == "Card Break" and link.label in HOME_CARD_BREAKS_TO_HIDE)
-            )
-            if should_hide and not link.hidden:
-                link.hidden = 1
-                changed = True
-            elif not should_hide and link.hidden:
-                link.hidden = 0
-                changed = True
-        if changed:
-            home.save(ignore_permissions=True)
-    except Exception as e:
-        frappe.log_error(str(e), "BizAxl Home Workspace Error")
-
-
-def _set_workspace_visibility(module_name, visible):
-    try:
-        frappe.db.sql("""
-            UPDATE `tabWorkspace`
-            SET is_hidden = %s, public = %s
-            WHERE module = %s OR title = %s
-        """, (0 if visible else 1, 1 if visible else 0, module_name, module_name))
-    except Exception:
-        pass
-
-
-def _block_module_from_search(module_name):
-    """Hide all DocTypes, Reports, Dashboards in a module from search."""
-    try:
-        # Block doctypes
-        frappe.db.sql("""
-            UPDATE `tabDocType`
-            SET hide_toolbar = 1, in_create = 0
-            WHERE module = %s AND issingle = 0
-        """, module_name)
-
-        # Disable reports
-        frappe.db.sql("""
-            UPDATE `tabReport` SET disabled = 1
-            WHERE module = %s
-        """, module_name)
-
-        # Hide dashboards
-        frappe.db.sql("""
-            UPDATE `tabDashboard` SET is_standard = 0
-            WHERE module = %s
-        """, module_name)
-    except Exception:
-        pass
-
-
-def _restore_module_to_search(module_name):
-    """Re-enable all DocTypes, Reports, Dashboards in a module."""
-    try:
-        frappe.db.sql("""
-            UPDATE `tabDocType`
-            SET hide_toolbar = 0
-            WHERE module = %s
-        """, module_name)
-
-        frappe.db.sql("""
-            UPDATE `tabReport` SET disabled = 0
-            WHERE module = %s
-        """, module_name)
-
-        frappe.db.sql("""
-            UPDATE `tabDashboard` SET is_standard = 1
-            WHERE module = %s
-        """, module_name)
-
-        frappe.db.sql("""
-            UPDATE `tabWorkspace`
-            SET is_hidden = 0, public = 1
-            WHERE module = %s OR title = %s
-        """, (module_name, module_name))
-    except Exception:
-        pass
-
-
-def _disable_domain(module_name):
-    domain = MODULE_TO_DOMAIN.get(module_name)
-    if not domain:
-        return
-    try:
-        disabled = frappe.conf.get("disabled_domains") or []
-        if isinstance(disabled, str):
-            disabled = json.loads(disabled)
-        if domain not in disabled:
-            disabled.append(domain)
-            from frappe.utils.site_config import update_site_config
-            update_site_config("disabled_domains", disabled)
-    except Exception:
-        pass
-
-
-def _enable_domain(module_name):
-    domain = MODULE_TO_DOMAIN.get(module_name)
-    if not domain:
-        return
-    try:
-        disabled = frappe.conf.get("disabled_domains") or []
-        if isinstance(disabled, str):
-            disabled = json.loads(disabled)
-        if domain in disabled:
-            disabled.remove(domain)
-            from frappe.utils.site_config import update_site_config
-            update_site_config("disabled_domains", disabled)
-    except Exception:
-        pass
+    all_modules = [m for m, info in BIZAXL_OPTIONAL_MODULES.items()
+                   if info["app"] in frappe.get_installed_apps()]
+    return apply_module_selection(all_modules)
 
 
 @frappe.whitelist()
 def get_current_visibility():
-    return frappe.get_all(
-        "Workspace",
-        filters={"public": 1},
-        fields=["name", "module", "is_hidden", "title"]
-    )
+    results = []
+    for module_name in list(BIZAXL_CORE_MODULES) + list(BIZAXL_OPTIONAL_MODULES.keys()):
+        ws = frappe.get_all("Workspace",
+            filters={"module": module_name, "public": 1},
+            fields=["name", "module", "is_hidden", "title"])
+        results.extend(ws)
+    return results
+
+
+def _set_workspace_visibility(module_name, visible):
+    try:
+        frappe.db.sql(
+            "UPDATE `tabWorkspace` SET is_hidden = %s WHERE module = %s AND public = 1",
+            (0 if visible else 1, module_name)
+        )
+    except Exception as e:
+        frappe.log_error(str(e), "BizAxl workspace visibility error")
+
+
+def _set_module_search_visibility(module_name, visible):
+    try:
+        frappe.db.sql(
+            "UPDATE `tabDocType` SET hide_toolbar = %s WHERE module = %s AND issingle = 0",
+            (0 if visible else 1, module_name)
+        )
+        frappe.db.sql(
+            "UPDATE `tabReport` SET disabled = %s WHERE module = %s",
+            (0 if visible else 1, module_name)
+        )
+    except Exception as e:
+        frappe.log_error(str(e), "BizAxl search visibility error")
