@@ -9,3 +9,6 @@ required_apps = ["frappe"]
 
 extend_bootinfo = ["bizaxl_core.api.boot.filter_search_doctypes"]
 
+fixtures = [
+    {"doctype": "Workspace", "filters": [["name", "in", ["Home"]]]},
+]
