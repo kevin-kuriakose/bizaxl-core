@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "module": "BizAxl Core",
+ "name": "ba-reports",
+ "page_name": "ba-reports",
+ "roles": [{"role": "System Manager"}, {"role": "Accounts Manager"}, {"role": "HR Manager"}, {"role": "HR User"}, {"role": "Accounts User"}],
+ "standard": "Yes",
+ "title": "BizAxl Reports"
+}

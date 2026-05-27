@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "module": "BizAxl Core",
+ "name": "ba-notifications",
+ "page_name": "ba-notifications",
+ "roles": [{"role": "System Manager"}],
+ "standard": "Yes",
+ "title": "BizAxl Notifications"
+}
