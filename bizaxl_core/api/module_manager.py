@@ -20,6 +20,7 @@ BIZAXL_OPTIONAL_MODULES = {
     "BizAxl Projects": {"label": "Projects & Timesheets", "app": "bizaxl_projects"},
     "BizAxl CRM":      {"label": "CRM & Leads",           "app": "bizaxl_crm"},
     "BizAxl Assets":   {"label": "Asset Management",      "app": "bizaxl_assets"},
+    "BizAxl POS":      {"label": "Point of Sale",         "app": "bizaxl_pos"},
 }
 
 VERTICAL_APPS = {
